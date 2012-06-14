@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <title>Twilio Client Call Transfer Example</title>
+        <script type="text/javascript"
+          src="http://static.twilio.com/libs/twiliojs/1.0/twilio.min.js"></script>
+        <script type="text/javascript"
+          src="http://code.jquery.com/jquery-1.7.2.min.js">
+        </script>
+        <link href="http://static0.twilio.com/packages/quickstart/client.css"
+          type="text/css" rel="stylesheet" />
+        <script type="text/javascript">
+            var capability_token = '{{capability_token}}';
+            Twilio.Device.setup(capability_token);
+
+            Twilio.Device.ready(function (device) {
+                $("#log").text("Client '{{client_name}}' is ready");
+            });
+
+            Twilio.Device.error(function (error) {
+                $("#log").text("Error: " + error.message);
+            });
+
+            Twilio.Device.connect(function (conn) {
+                $("#log").text("Successfully established call");
+            });
+
+            Twilio.Device.disconnect(function (conn) {
+                $("#log").text("Call ended");
+            });
+
+            Twilio.Device.incoming(function (conn) {
+                $("#log").text("Incoming connection from " + conn.parameters.From);
+                // accept the incoming connection and start two-way audio
+                conn.accept();
+            });
+
+            $(function(){
+
+                $('.transfer').on('click', function(e){
+                    var toClient = $(this).attr('data-target');
+                    var transferUrl = '{{ url_for('transfer_call', from_client=client_name, to_client='') }}' + toClient;
+                    e.preventDefault();
+                    $.get(transferUrl).success(function(){
+                        $("#log").text('Call transferred to ' + toClient);
+                    });
+                });
+            });
+
+        </script>
+    </head>
+    <body>
+        <div id="log">Loading pigeons...</div>
+
+        <button class="call transfer" data-target='bob'>Transfer to Bob</a>
+    </body>
+</html>
